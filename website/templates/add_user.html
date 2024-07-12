@@ -1,0 +1,52 @@
+{% extends "base.html" %} {% block title %}Regisztráció{% endblock %} {% block
+content %}
+<form method="POST">
+  <h3 align="center">Felhasználó hozzáadása</h3>
+  
+  <div class="form-group">
+    <label for="email">Email cím</label>
+    <input
+      type="email"
+      class="form-control"
+      id="email"
+      name="email"
+      placeholder="Email"
+    />
+  </div>
+
+  <div class="form-group">
+    <label for="username">Név</label>
+    <input
+      type="username"
+      class="form-control"
+      id="username"
+      name="username"
+      placeholder="név"
+    />
+  </div>
+
+
+  <div class="form-group">
+    <label for="password1">Jelszó</label>
+    <input
+      type="password"
+      class="form-control"
+      id="password1"
+      name="password1"
+      placeholder="Jelszó"
+    />
+  </div>
+  <div class="form-group">
+    <label for="password2">Jelszó megerősítése</label>
+    <input
+      type="password"
+      class="form-control"
+      id="password2"
+      name="password2"
+      placeholder="Jelszó megerősítése"
+    />
+  </div>
+  <br />
+  <button type="submit" class="btn btn-primary">Regisztráció</button>
+</form>
+{% endblock %}

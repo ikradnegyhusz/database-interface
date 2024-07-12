@@ -1,0 +1,236 @@
+{% extends "base.html" %} {% block title %}Kezdőlap{% endblock %} {% block content
+%}
+
+<style>
+
+.inlineDiv{
+display:inline;
+margin: 20px;
+align: center;
+}
+
+.smallTable{
+height: 25vh;
+width: 100vw;
+overflow-y: auto;
+	
+align: center;
+margin-left: auto;
+margin-right: auto;
+}
+
+
+.halfTable{
+height: 42vh;
+width: 100vw;
+overflow-y: auto;
+	
+align: center;
+margin-left: auto;
+margin-right: auto;
+}
+
+.bigTable{
+height: 60vh;
+width: 100vw;
+overflow-y: auto;
+	
+align: center;
+margin-left: auto;
+margin-right: auto;
+}
+
+.tableHead {
+    position: sticky;
+    top: 0;	
+}
+
+.noselect{
+	user-select:none;
+}
+
+
+td{
+  
+  text-align: center;
+  font-weight:normal;
+  user-select: none;
+}
+
+
+
+</style>
+
+<head>
+
+<script src="{{url_for('static', filename='functions.js')}}"></script>
+
+<div class="modal" tabindex="-1" role="dialog" id="MODAL">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="MODAL-TITLE">Modal title</h5>
+        <button onClick="modal.style.display='none';" type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" id="MODAL-BODY">
+        <p>Modal body text goes here.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" id="MODAL-PRIMARY">Igen</button>
+        <button type="button" class="btn btn-secondary" id="MODAL-SECONDARY">Mégsem</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script> 
+function setUI(mode)
+{
+	{%if isadmin==True%}
+	if(mode=='main'){
+		//columns_dropdown.style.display='inline';
+		adduser_button.style.display='initial';
+		deluser_button.style.display='initial';
+		addedit_button.style.display='none';
+		adduserCancel_button.style.display='none';
+	}
+	if(mode=='edit'){
+		//columns_dropdown.style.display='compact';
+		adduser_button.style.display='none';
+		deluser_button.style.display='none';
+		addedit_button.style.display='initial';
+		adduserCancel_button.style.display='none';
+	}
+	if(mode=='add'){
+		//columns_dropdown.style.display='none';
+		adduser_button.style.display='none';
+		deluser_button.style.display='none';
+		addedit_button.style.display='initial';
+		adduserCancel_button.style.display='initial';
+	}
+	{%endif%}
+}
+
+function askUserModal()
+{
+	usertable.DelRowData(usertable.selected_row);
+	closeModal();
+}
+
+function askUserDelete()
+{
+	setModal("TÖRLÉS","Biztosan törli a felhasználót?",askUserModal,closeModal);
+	showModal();
+}
+
+ </script>
+
+<script type="text/javascript">
+
+const users_data={{allowed_users |safe}};
+/*
+[email], [nev], [telefon], [szuletes], [beleposzam], [lakcim], [csalad_nev], [statusz_nev], [besorolas_nev], [ID]
+*/
+const data_data={{allowed_users_data |safe}};
+/*
+[datum], [csalad_id], [statusz_id], [besorolas_id], [egyen_id], [adat_id]
+*/
+const families={{family_types |safe}};
+const statuses={{status_types |safe}};
+const classes={{class_types |safe}};
+
+const user_values = ["email","név","telefonszám","születés","belépőszám","lakcím","család","státusz","besorolás","id"];
+const user_values_dropdown = ["email","név","telefonszám","születés","belépőszám","lakcím","család","státusz","besorolás"];
+const data_values=["dátum","család","státusz","besorolás","id"];
+
+//egyén táblázat elkészítése, és a legördülő lista hozzáadása
+usertable = new Table(user_table_lead,'halfTable',user_values);
+usertable.createTable(dropdown_values=user_values_dropdown);
+//egyének listájának táblázatba tevése
+usertable.POST_ROUTE="/mod-user";
+usertable.appendData(users_data);
+usertable.toggleColumn(-1);
+
+//gombok
+btndiv=document.createElement("Div");
+btndiv.align="center";
+document.body.appendChild(btndiv);
+
+{%if isadmin==True%}
+adduser_button=createButton('Új <i class="bi bi-person-plus"> </i>' ,usertable.AddRowEdit,btndiv,['btn','btn-success']);
+adduserCancel_button=createButton('Mégse <i class="bi bi-person-per"></i>' ,usertable.CancelAddRowEdit,btndiv,['btn','btn-danger']);
+addedit_button=createButton('Kész <i class="bi bi-person-check"> </i>',usertable.CommitRowEdit,btndiv,['btn','btn-success']);
+deluser_button=createButton('Törlés <i class="bi bi-person-x"> </i>',askUserDelete,btndiv,['btn','btn-danger']);
+
+setUI('main');
+{%endif%}
+/*
+for(let i = 2; i<=usercount;i++)
+{
+	values=[];
+	for(k = 0;k<users.length;k++)
+	{
+		values[k]=users[k][i-1];
+	}
+	NewUser(i,values);
+}
+*/
+//adatok listáját megjelenítő táblázat készítése
+/*
+[datatable,datadiv]=createTable(data_table_lead,'halfTable',data_values);
+
+for(let i = 1;i<=datacount;i++)
+{	
+	var tr = document.getElementById(data_table_lead).insertRow();
+	tr.id=data_table_lead+String(i)+"_"+String(data[0][i-1]);
+	
+	tr.addEventListener("mouseover", function(){
+		if(selected_data!=this.id) ChangeColor(this,highlightcolor_text,highlightcolor);
+	});
+	
+	tr.addEventListener("mouseout", function(){
+		if(selected_data!=this.id) ChangeColor(this,textcolor,clearcolor);
+	});
+	
+	tr.addEventListener("click", function(){
+		SelectData(this.id);
+		ChangeColor(this,selectcolor_text,selectcolor);
+	});
+	
+	tr.addEventListener("dblclick", function(){
+		//SelectUser(this.id);
+		//HandleUser();
+	});
+	
+	addCell(tr, data[1][i-1].split(' ')[0], id='cdátum'+String(i) );
+	addCell(tr, families[data[2][i-1]-1] ,id='ccsalád'+String(i) );
+	addCell(tr, statuses[data[3][i-1]-1], id='cstátusz'+String(i) );
+	addCell(tr, classes[data[4][i-1]-1], id='cbesorolás'+String(i) );
+}
+
+updateDataTable();
+
+//event listeners
+document.addEventListener("keydown", (e) => {
+
+if(["ArrowUp","ArrowDown"].indexOf(e.code) > -1) {
+        e.preventDefault();
+    }
+
+if (e.key == "Enter"){
+	{%if isadmin==True%}
+		if(document.getElementById("MODAL").style.display=="none"){
+			if(editing_user)CommitEditUser();
+			else if(parseInt(selected_user.replace(user_table_lead,''))>=2) EditUser(selected_user);}
+	{%endif%}
+}
+
+});
+*/
+
+</script>
+
+
+{% endblock %}
